@@ -47,4 +47,25 @@ app.post('/cars', (request, response) => {
   return response.status(201).json(car)
 })
 
+app.put('/cars/:id', (request, response) => {
+  const { id } = request.params
+  const { name } = request.body
+
+  const car = cars.find(car => car.id === Number(id))
+
+  car.name = name
+
+  return response.status(200).json(car)
+})
+
+app.delete('/cars/:id', (request, response) => {
+  const { id } = request.params
+
+  const carIndex = cars.findIndex(car => car.id === Number(id))
+
+  cars.splice(carIndex, 1)
+
+  return response.status(200).json(cars)
+})
+
 app.listen(3333, () => console.log('Server is running'))
