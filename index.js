@@ -1,5 +1,6 @@
 const express = require('express')
 // import express from 'express'
+const { v4: uuid } = require('uuid')
 
 const app = express()
 
@@ -7,15 +8,15 @@ app.use(express.json())
 
 const cars = [
   {
-    id: 1,
+    id: uuid(),
     name: 'Fusca'
   },
   {
-    id: 2,
+    id: uuid(),
     name: 'Brasília'
   },
   {
-    id: 3,
+    id: uuid(),
     name: 'Chevette'
   }
 ]
@@ -27,18 +28,20 @@ app.get('/cars', (request, response) => {
 app.get('/cars/:id', (request, response) => {
   const { id } = request.params
 
-  const car = cars.find(car => car.id === Number(id))
+  const car = cars.find(car => car.id === id)
+
+  if (!car) return response.status(404).json({ error: 'Car not found' })
 
   return response.status(200).json(car)
 })
 
 app.post('/cars', (request, response) => {
-  console.log(request.body)
-
   const { name } = request.body
 
+  if (!name) return response.status(400).json({ error: 'Name is required' })
+
   const car = {
-    id: cars.length + 1,
+    id: uuid(),
     name
   }
 
@@ -51,7 +54,11 @@ app.put('/cars/:id', (request, response) => {
   const { id } = request.params
   const { name } = request.body
 
-  const car = cars.find(car => car.id === Number(id))
+  if (!name) return response.status(400).json({ error: 'Name is required' })
+
+  const car = cars.find(car => car.id === id)
+
+  if (!car) return response.status(404).json({ error: 'Car not found' })
 
   car.name = name
 
@@ -61,7 +68,9 @@ app.put('/cars/:id', (request, response) => {
 app.delete('/cars/:id', (request, response) => {
   const { id } = request.params
 
-  const carIndex = cars.findIndex(car => car.id === Number(id))
+  const carIndex = cars.findIndex(car => car.id === id)
+
+  if (carIndex < 0) return response.status(404).json({ error: 'Car not found' })
 
   cars.splice(carIndex, 1)
 
